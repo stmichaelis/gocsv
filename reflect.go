@@ -50,22 +50,24 @@ func getFieldInfos(rType reflect.Type, parentIndexChain []int) []fieldInfo {
 			fieldsList = append(fieldsList, getFieldInfos(field.Type, indexChain)...)
 			continue
 		}
-		fieldInfo := fieldInfo{IndexChain: indexChain}
 		fieldTag := field.Tag.Get("csv")
 		fieldTags := strings.Split(fieldTag, ",")
 		for _, fieldTagEntry := range fieldTags {
 			if fieldTagEntry != "omitempty" {
 				fieldTag = fieldTagEntry
+				fieldInfo := fieldInfo{IndexChain: indexChain}
+
+				if fieldTag == "-" {
+					continue
+				} else if fieldTag != "" {
+					fieldInfo.Key = fieldTag
+				} else {
+					fieldInfo.Key = field.Name
+				}
+				fieldsList = append(fieldsList, fieldInfo)
 			}
 		}
-		if fieldTag == "-" {
-			continue
-		} else if fieldTag != "" {
-			fieldInfo.Key = fieldTag
-		} else {
-			fieldInfo.Key = field.Name
-		}
-		fieldsList = append(fieldsList, fieldInfo)
+
 	}
 	return fieldsList
 }
